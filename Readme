@@ -1,0 +1,46 @@
+# Gestor de Plantillas para WhatsApp
+
+App para crear, guardar y reutilizar plantillas de mensajes de WhatsApp. Todo vive en memoria (sin persistencia todavía).
+
+## Clase Template
+
+Ubicada en js/models/Template.js. Representa una plantilla individual con cuatro propiedades:
+
+- titulo: nombre corto de la plantilla.
+- mensaje: el texto, que puede incluir variables como {nombre} y {producto}.
+- hashtag: etiqueta normalizada (siempre en minúsculas y con #).
+- fecha: objeto Date creado automáticamente al instanciar la plantilla (new Date()), usado luego para mostrar la fecha de creación.
+
+Todas las plantillas creadas se guardan en state.plantillas, un arreglo que actúa como única fuente de verdad de la app.
+
+## Métodos de String utilizados
+
+| Método | Dónde se usa | Para qué |
+|---|---|---|
+| .trim() | Al leer título, mensaje y hashtag del formulario | Elimina espacios sobrantes al inicio/final |
+| .toLowerCase() | normalizarHashtag() | Uniforma el hashtag a minúsculas |
+| .startsWith() | normalizarHashtag() | Verifica si el hashtag ya trae # antes de agregarlo |
+| .length | Validación de campos y contador de caracteres (Logro 1) | Detecta campos vacíos y muestra cuántos caracteres tiene el mensaje |
+| .slice() | recortarTexto() (Logro 2) | Recorta mensajes largos en la tarjeta para mantener la rejilla pareja |
+| .replaceAll() | generarMensajeFinal() (HU4 y Logro 3) | Sustituye {nombre} y {producto} por valores reales dentro del mensaje |
+
+## Objeto Date
+
+new Date() se usa en el constructor de Template para registrar el momento exacto de creación. Luego, en render(), .toLocaleDateString("es-PE") convierte esa fecha en texto legible (ej. 29/6/2026) para mostrarla en cada tarjeta.
+
+## Logros implementados
+
+- *Logro 1*: cada tarjeta muestra la cantidad de caracteres del mensaje (plantilla.mensaje.length).
+- *Logro 2*: si el mensaje es muy largo, la tarjeta lo muestra recortado con .slice(0, 60) + "…"; el mensaje completo (sin recortar) sigue usándose en el generador.
+- *Logro 3*: el generador soporta dos variables, {nombre} y {producto}, encadenando dos llamadas a .replaceAll().
+
+## Estructura del proyecto
+
+
+whatsapp-templates/
+├── index.html
+├── README.md
+└── js/
+    ├── app.js
+    └── models/
+        └── Template.js
