@@ -99,16 +99,22 @@ function render() {
   // 1. Pinta las tarjetas visibles (respetando el filtro)
   lista.innerHTML = "";
   plantillasVisibles().forEach(function (plantilla) {
-    const fechaTexto = plantilla.fecha.toLocaleDateString("es-PE");
+    // JSON no guarda objetos Date: tras cargar desde localStorage, plantilla.fecha es un string.
+    const fechaTexto = new Date(plantilla.fecha).toLocaleDateString("es-PE");
     const cantidadCaracteres = plantilla.mensaje.length;     // Logro 1 de C13
     const mensajeCorto = recortarTexto(plantilla.mensaje, 60); // Logro 2 de C13
+
+    // Logro 3 (C15): fecha de última edición, si existe
+    const editadaTexto = plantilla.editadaEl
+      ? `<span class="text-slate-400"> · editada ${new Date(plantilla.editadaEl).toLocaleDateString("es-PE")}</span>`
+      : "";
 
     const li = document.createElement("li");
     li.className = "bg-white p-4 rounded-lg shadow";
     li.innerHTML = `
       <div class="flex items-start justify-between gap-2">
         <strong class="text-slate-800">${plantilla.titulo}</strong>
-        <span class="text-xs text-slate-400 shrink-0">${fechaTexto}</span>
+        <span class="text-xs text-slate-400 shrink-0">${fechaTexto}${editadaTexto}</span>
       </div>
       <p class="text-sm text-slate-600 mt-1">${mensajeCorto}</p>
       <div class="flex items-center justify-between mt-2">
@@ -127,11 +133,14 @@ function render() {
 
   // 3. Actualiza el panel de estadísticas
   renderStats();
+
+  // 4. C15: persiste el estado en cada redibujado
+  guardar();
 }
 
 function renderSelector() {
   selector.innerHTML = state.plantillas
-    .map((plantilla, indice) => <option value="${indice}">${plantilla.titulo}</option>)
+    .map((plantilla, indice) => `<option value="${indice}">${plantilla.titulo}</option>`)
     .join("");
 }
 
@@ -141,13 +150,13 @@ function renderStats() {
 
   const etiquetas = Object.entries(porTag)
     .map(([hashtag, cantidad]) =>
-      <span class="text-xs bg-white border border-slate-200 px-2 py-0.5 rounded-full">${hashtag} · ${cantidad}</span>)
+      `<span class="text-xs bg-white border border-slate-200 px-2 py-0.5 rounded-full">${hashtag} · ${cantidad}</span>`)
     .join("");
 
   // Logro 2: hashtag más usado
   const top = hashtagMasUsado(porTag);
   const topTexto = top
-    ? <span class="text-xs text-emerald-700 font-medium">🏆 Más usado: ${top[0]} (${top[1]})</span>
+    ? `<span class="text-xs text-emerald-700 font-medium">🏆 Más usado: ${top[0]} (${top[1]})</span>`
     : "";
 
   document.getElementById("panel-stats").innerHTML = `
@@ -155,7 +164,7 @@ function renderStats() {
       <span class="text-sm font-semibold text-slate-700">${total} plantilla(s)</span>
       ${etiquetas}
     </div>
-    ${topTexto ? <div class="mt-1">${topTexto}</div> : ""}`;
+    ${topTexto ? `<div class="mt-1">${topTexto}</div>` : ""}`;
 }
 
 // ==========================================================
@@ -183,7 +192,13 @@ form.addEventListener("submit", function (evento) {
     // HU2: actualiza solo esa plantilla, sin mutar el array original
     state.plantillas = state.plantillas.map(plantilla =>
       plantilla.id === state.editandoId
-        ? { ...plantilla, titulo: tituloTexto, mensaje: mensajeTexto, hashtag: normalizarHashtag(hashtag.value) }
+        ? {
+            ...plantilla,
+            titulo: tituloTexto,
+            mensaje: mensajeTexto,
+            hashtag: normalizarHashtag(hashtag.value),
+            editadaEl: new Date() // Logro 3 (C15): registra la fecha de edición
+          }
         : plantilla
     );
     state.editandoId = null;
@@ -218,11 +233,19 @@ lista.addEventListener("click", function (evento) {
 });
 
 // ==========================================================
-// HU4 (C14): buscador — filtra al instante mientras se escribe
+// HU4 (C14) + HU5 (C15): buscador — filtra y persiste el filtro
 // ==========================================================
 document.getElementById("buscador").addEventListener("input", function (evento) {
   state.filtro = evento.target.value;
   render();
+});
+
+// ==========================================================
+// HU4 (C15): Vaciar todo
+// ==========================================================
+document.getElementById("btn-vaciar").addEventListener("click", function () {
+  state.plantillas = [];
+  render(); // render → guardar(); como no queda nada, se borra la clave
 });
 
 // ==========================================================
@@ -252,5 +275,15 @@ document.getElementById("btn-copiar").addEventListener("click", function () {
   navigator.clipboard.writeText(salida.textContent);
 });
 
-// Primer render al cargar la página
-render();
+// ==========================================================
+// C15: Arranque de la app — carga estado guardado antes del primer render
+// ==========================================================
+state.plantillas = cargar();
+state.filtro = localStorage.getItem(CLAVE_FILTRO) ?? "";
+document.getElementById("buscador").value = state.filtro;
+
+const visitas = registrarVisita(); // Logro 2
+console.log(`Visita número ${visitas}`);
+console.log(JSON.stringify(state.plantillas, null, 2)); // Logro 1: export bonito
+
+render(); // primer render, ya con los datos cargados

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Plantillas WhatsApp</title>
+  <link rel="icon" href="whatsapp-logo.ico"></link>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-slate-100 min-h-screen p-6">
@@ -66,11 +67,19 @@
       <aside id="panel-stats" class="bg-slate-100 rounded-lg p-3"></aside>
 
       <ul id="listaPlantillas" class="grid gap-3 sm:grid-cols-2"></ul>
+   
+      <!-- HU4 (C15): indicador de guardado + vaciar todo -->
+      <div class="flex items-center justify-between border-t border-slate-200 pt-3">
+        <p id="estado" class="text-xs text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">Listo</p>
+        <button id="btn-vaciar" class="text-xs px-3 py-1.5 rounded-md border border-red-200 text-red-600 hover:bg-red-50 transition">Vaciar todo</button>
+      </div>
+    
     </div>
 
   </div>
 
   <script src="js/models/Template.js"></script>
+  <script src="js/persistence.js"></script> 
   <script src="js/app.js"></script>
 </body>
 </html>
