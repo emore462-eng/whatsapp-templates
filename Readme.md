@@ -140,7 +140,3 @@ whatsapp-templates/
     └── models/
         └── Template.js
 ```
-
-## 🚀 Despliegue
-
-Publicado en GitHub Pages: https://emore462-eng.github.io/whatsapp-templates/
