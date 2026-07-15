@@ -1,91 +1,79 @@
-# 📱 Gestor de Plantillas para WhatsApp
+📱 Gestor de Plantillas para WhatsApp
+App para crear, guardar, editar, eliminar y reutilizar plantillas de mensajes de WhatsApp. Desde el laboratorio 15, el estado persiste en el navegador usando localStorage y JSON.
 
-App para crear, guardar, editar, eliminar y reutilizar plantillas de mensajes de WhatsApp. Todo vive en memoria (sin persistencia todavía).
-
-## 🧩 Clase Template
-
+🧩 Clase Template
 Ubicada en js/models/Template.js. Representa una plantilla individual con cinco propiedades:
 
-- id: identificador único generado con crypto.randomUUID(), usado para saber sobre cuál plantilla actuar al editar o eliminar.
-- titulo: nombre corto de la plantilla.
-- mensaje: el texto, que puede incluir variables como {nombre} y {producto}.
-- hashtag: etiqueta normalizada (siempre en minúsculas y con #).
-- fecha: objeto Date creado automáticamente al instanciar la plantilla (new Date()), usado luego para mostrar la fecha de creación.
-
+id: identificador único generado con crypto.randomUUID(), usado para saber sobre cuál plantilla actuar al editar o eliminar.
+titulo: nombre corto de la plantilla.
+mensaje: el texto, que puede incluir variables como {nombre} y {producto}.
+hashtag: etiqueta normalizada (siempre en minúsculas y con #).
+fecha: objeto Date creado automáticamente al instanciar la plantilla (new Date()), usado luego para mostrar la fecha de creación.
 Todas las plantillas creadas se guardan en state.plantillas, un arreglo que actúa como única fuente de verdad de la app.
 
-## 🔤 Métodos de String utilizados
-
-| Método | Dónde se usa | Para qué |
-|---|---|---|
-| .trim() | Al leer título, mensaje y hashtag del formulario | Elimina espacios sobrantes al inicio/final |
-| .toLowerCase() | normalizarHashtag() y el buscador | Uniforma el hashtag a minúsculas y hace el filtro insensible a mayúsculas |
-| .startsWith() | normalizarHashtag() | Verifica si el hashtag ya trae # antes de agregarlo |
-| .length | Validación de campos y contador de caracteres (Logro 1) | Detecta campos vacíos y muestra cuántos caracteres tiene el mensaje |
-| .slice() | recortarTexto() (Logro 2) | Recorta mensajes largos en la tarjeta para mantener la rejilla pareja |
-| .replaceAll() | generarMensajeFinal() | Sustituye {nombre} y {producto} por valores reales dentro del mensaje |
-| .includes() | plantillasVisibles() | Filtra las plantillas cuyo hashtag coincide con el texto del buscador |
-
-## 📅 Objeto Date
-
+🔤 Métodos de String utilizados
+Método	Dónde se usa	Para qué
+.trim()	Al leer título, mensaje y hashtag del formulario	Elimina espacios sobrantes al inicio/final
+.toLowerCase()	normalizarHashtag() y el buscador	Uniforma el hashtag a minúsculas y hace el filtro insensible a mayúsculas
+.startsWith()	normalizarHashtag()	Verifica si el hashtag ya trae # antes de agregarlo
+.length	Validación de campos y contador de caracteres (Logro 1)	Detecta campos vacíos y muestra cuántos caracteres tiene el mensaje
+.slice()	recortarTexto() (Logro 2)	Recorta mensajes largos en la tarjeta para mantener la rejilla pareja
+.replaceAll()	generarMensajeFinal()	Sustituye {nombre} y {producto} por valores reales dentro del mensaje
+.includes()	plantillasVisibles()	Filtra las plantillas cuyo hashtag coincide con el texto del buscador
+📅 Objeto Date
 new Date() se usa en el constructor de Template para registrar el momento exacto de creación. Luego, en render(), .toLocaleDateString("es-PE") convierte esa fecha en texto legible (ej. 29/6/2026) para mostrarla en cada tarjeta.
 
-## 🖱️ Delegación de eventos
-
+🖱️ Delegación de eventos
 Los botones "Editar" y "Eliminar" de cada tarjeta no tienen un listener propio. En su lugar, hay un único listener puesto en el contenedor padre (<ul id="listaPlantillas">):
-
-js
-lista.addEventListener("click", function (evento) {
-  const id = evento.target.dataset.id;
-  if (!id) return;
-
-  if (evento.target.classList.contains("btn-eliminar")) eliminarPlantilla(id);
-  if (evento.target.classList.contains("btn-editar")) cargarEnFormulario(id);
-});
-
 
 Cuando el usuario hace clic en un botón, el evento se detecta en el <ul> gracias a que "burbujea" hacia arriba desde el elemento exacto donde ocurrió el clic (event.target). Ahí se revisa qué clase tiene ese elemento (para saber qué acción ejecutar) y qué data-id trae (para saber sobre qué plantilla actuar).
 
 Esto es más eficiente que poner un listener por botón, porque las tarjetas se destruyen y se vuelven a crear cada vez que se llama a render(). Si el listener estuviera en cada botón, habría que volver a engancharlo en cada redibujado. Con la delegación, el listener vive en el <ul>, que nunca se destruye, así que funciona sin importar cuántas tarjetas haya.
 
-## 📊 Función contarPorHashtag
+📊 Función contarPorHashtag
+Es una función pura: recibe el arreglo de plantillas y devuelve un objeto nuevo con el conteo, sin modificar nada externo (no toca state ni el DOM). Se usa en el panel de estadísticas (renderStats()) para mostrar el total de plantillas, cuántas hay por cada hashtag, y cuál es el hashtag más usado. Como renderStats() se llama dentro de render(), las estadísticas se recalculan solas cada vez que se agrega, edita o elimina una plantilla.
 
-js
-function contarPorHashtag(plantillas) {
-  const conteo = {};
-  plantillas.forEach(function (plantilla) {
-    const elHashtag = plantilla.hashtag;
-    if (conteo[elHashtag]) {
-      conteo[elHashtag] = conteo[elHashtag] + 1;
-    } else {
-      conteo[elHashtag] = 1;
-    }
-  });
-  return conteo;
-}
+💾 Clase Persistencia
+Toda la persistencia vive en js/persistence.js. El estado se guarda bajo tres claves de localStorage:
 
+whatsapp-templates: guarda state.plantillas como texto, convertido con JSON.stringify antes de guardarse y reconstruido con JSON.parse al cargarlo.
+whatsapp-templates-filtro: guarda el texto del buscador (state.filtro) directamente, sin JSON, porque ya es un string y localStorage solo almacena texto.
+whatsapp-templates-visitas (Logro 2): cuenta cuántas veces se abrió la app.
+La función guardar() se llama al final de render(), así que cualquier cambio de estado (agregar, editar, eliminar, filtrar, vaciar) se persiste automáticamente, sin necesidad de un botón "Guardar". Cuando state.plantillas queda vacío, en vez de guardar "[]" se usa removeItem para dejar el almacenamiento realmente limpio.
 
-Es una función pura: recibe el arreglo de plantillas y devuelve un objeto nuevo con el conteo, sin modificar nada externo (no toca state ni el DOM). Se usa en el panel de estadísticas (renderStats()) para mostrar el total de plantillas, cuántas hay por cada hashtag, y (Logro 2) cuál es el hashtag más usado. Como renderStats() se llama dentro de render(), las estadísticas se recalculan solas cada vez que se agrega, edita o elimina una plantilla.
+La función cargar() se ejecuta una sola vez al iniciar app.js, antes del primer render(): lee el texto guardado con getItem y lo reconstruye con JSON.parse. Si no hay nada guardado, devuelve un array vacío usando un operador ternario.
 
-## 🌟 Logros implementados
+¿Por qué try/catch al parsear?
+JSON.parse lanza una excepción si el texto guardado en localStorage no es JSON válido (por ejemplo, si se edita a mano desde DevTools y queda corrupto, o si el navegador guarda datos dañados por algún motivo). Sin try/catch, ese error rompería toda la app justo al arrancar, dejando una pantalla en blanco sin ninguna forma de recuperarse.
 
-*Laboratorio 13*
-- ✅ *Logro 1*: cada tarjeta muestra la cantidad de caracteres del mensaje (plantilla.mensaje.length).
-- ✅ *Logro 2*: si el mensaje es muy largo, la tarjeta lo muestra recortado con .slice(0, 60) + "…"; el mensaje completo (sin recortar) sigue usándose en el generador.
-- ✅ *Logro 3*: el generador soporta dos variables, {nombre} y {producto}, encadenando dos llamadas a .replaceAll().
+Envolviendo el JSON.parse dentro de un try/catch, si la conversión falla se captura el error, se muestra un aviso en consola con console.warn para saber qué pasó, y la función devuelve una lista vacía en su lugar. Así la app siempre puede arrancar de forma segura, incluso si los datos guardados están dañados.
 
-*Laboratorio 14*
-- ✅ *Logro 1*: botón "Cancelar" que aparece solo en modo edición; limpia el formulario y pone state.editandoId = null.
-- ✅ *Logro 2*: el panel de estadísticas muestra el hashtag con más plantillas, calculado a partir de contarPorHashtag().
-- ✅ *Logro 3*: antes de eliminar una plantilla, se muestra un confirm() pidiendo confirmación.
+También hay que reconstruir las fechas manualmente: JSON.stringify convierte los objetos Date en texto, así que tras recargar la página, plantilla.fecha es un string. Por eso en render() se usa new Date(plantilla.fecha) antes de llamar a .toLocaleDateString().
 
-## 📁 Estructura del proyecto
+🌟 Logros implementados
+Clase Modelado de Datos y Manipulación de Texto (Laboratorio 13)
 
+✅ Logro 1: cada tarjeta muestra la cantidad de caracteres del mensaje (plantilla.mensaje.length).
+✅ Logro 2: si el mensaje es muy largo, la tarjeta lo muestra recortado con .slice(0, 60) + "…"; el mensaje completo (sin recortar) sigue usándose en el generador.
+✅ Logro 3: el generador soporta dos variables, {nombre} y {producto}, encadenando dos llamadas a .replaceAll().
+Clase Interacción y Datos Derivados (Laboratorio 14)
 
-whatsapp-templates/
-├── index.html
-├── README.md
-└── js/
-    ├── app.js
-    └── models/
-        └── Template.js
+✅ Logro 1: botón "Cancelar" que aparece solo en modo edición; limpia el formulario y pone state.editandoId = null.
+✅ Logro 2: el panel de estadísticas muestra el hashtag con más plantillas, calculado a partir de contarPorHashtag().
+✅ Logro 3: antes de eliminar una plantilla, se muestra un confirm() pidiendo confirmación.
+Clase Persistencia con localStorage y JSON (Laboratorio 15)
+
+✅ Logro 1: al arrancar la app, se imprime en consola JSON.stringify(state.plantillas, null, 2) con sangría, para ver los datos guardados de forma legible.
+✅ Logro 2: la clave whatsapp-templates-visitas en localStorage guarda cuántas veces se abrió la app, incrementándose en cada carga.
+✅ Logro 3: al editar una plantilla se guarda un campo editadaEl con la fecha de la última edición, mostrado junto a la fecha de creación en la tarjeta.
+
+📁 Estructura del proyecto
+
+whatsapp-templates/ 
+├── index.html 
+├── README.md 
+└── js/ 
+├── app.js 
+├── persistence.js 
+└── models/ 
+└── Template.js
