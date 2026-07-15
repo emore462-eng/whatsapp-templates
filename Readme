@@ -1,11 +1,12 @@
-# Gestor de Plantillas para WhatsApp
+# 📱 Gestor de Plantillas para WhatsApp
 
-App para crear, guardar y reutilizar plantillas de mensajes de WhatsApp. Todo vive en memoria (sin persistencia todavía).
+App para crear, guardar, editar, eliminar y reutilizar plantillas de mensajes de WhatsApp. Todo vive en memoria (sin persistencia todavía).
 
-## Clase Template
+## 🧩 Clase Template
 
-Ubicada en js/models/Template.js. Representa una plantilla individual con cuatro propiedades:
+Ubicada en js/models/Template.js. Representa una plantilla individual con cinco propiedades:
 
+- id: identificador único generado con crypto.randomUUID(), usado para saber sobre cuál plantilla actuar al editar o eliminar.
 - titulo: nombre corto de la plantilla.
 - mensaje: el texto, que puede incluir variables como {nombre} y {producto}.
 - hashtag: etiqueta normalizada (siempre en minúsculas y con #).
@@ -13,28 +14,72 @@ Ubicada en js/models/Template.js. Representa una plantilla individual con cuatro
 
 Todas las plantillas creadas se guardan en state.plantillas, un arreglo que actúa como única fuente de verdad de la app.
 
-## Métodos de String utilizados
+## 🔤 Métodos de String utilizados
 
 | Método | Dónde se usa | Para qué |
 |---|---|---|
 | .trim() | Al leer título, mensaje y hashtag del formulario | Elimina espacios sobrantes al inicio/final |
-| .toLowerCase() | normalizarHashtag() | Uniforma el hashtag a minúsculas |
+| .toLowerCase() | normalizarHashtag() y el buscador | Uniforma el hashtag a minúsculas y hace el filtro insensible a mayúsculas |
 | .startsWith() | normalizarHashtag() | Verifica si el hashtag ya trae # antes de agregarlo |
 | .length | Validación de campos y contador de caracteres (Logro 1) | Detecta campos vacíos y muestra cuántos caracteres tiene el mensaje |
 | .slice() | recortarTexto() (Logro 2) | Recorta mensajes largos en la tarjeta para mantener la rejilla pareja |
-| .replaceAll() | generarMensajeFinal() (HU4 y Logro 3) | Sustituye {nombre} y {producto} por valores reales dentro del mensaje |
+| .replaceAll() | generarMensajeFinal() | Sustituye {nombre} y {producto} por valores reales dentro del mensaje |
+| .includes() | plantillasVisibles() | Filtra las plantillas cuyo hashtag coincide con el texto del buscador |
 
-## Objeto Date
+## 📅 Objeto Date
 
 new Date() se usa en el constructor de Template para registrar el momento exacto de creación. Luego, en render(), .toLocaleDateString("es-PE") convierte esa fecha en texto legible (ej. 29/6/2026) para mostrarla en cada tarjeta.
 
-## Logros implementados
+## 🖱️ Delegación de eventos
 
-- *Logro 1*: cada tarjeta muestra la cantidad de caracteres del mensaje (plantilla.mensaje.length).
-- *Logro 2*: si el mensaje es muy largo, la tarjeta lo muestra recortado con .slice(0, 60) + "…"; el mensaje completo (sin recortar) sigue usándose en el generador.
-- *Logro 3*: el generador soporta dos variables, {nombre} y {producto}, encadenando dos llamadas a .replaceAll().
+Los botones "Editar" y "Eliminar" de cada tarjeta no tienen un listener propio. En su lugar, hay un único listener puesto en el contenedor padre (<ul id="listaPlantillas">):
 
-## Estructura del proyecto
+js
+lista.addEventListener("click", function (evento) {
+  const id = evento.target.dataset.id;
+  if (!id) return;
+
+  if (evento.target.classList.contains("btn-eliminar")) eliminarPlantilla(id);
+  if (evento.target.classList.contains("btn-editar")) cargarEnFormulario(id);
+});
+
+
+Cuando el usuario hace clic en un botón, el evento se detecta en el <ul> gracias a que "burbujea" hacia arriba desde el elemento exacto donde ocurrió el clic (event.target). Ahí se revisa qué clase tiene ese elemento (para saber qué acción ejecutar) y qué data-id trae (para saber sobre qué plantilla actuar).
+
+Esto es más eficiente que poner un listener por botón, porque las tarjetas se destruyen y se vuelven a crear cada vez que se llama a render(). Si el listener estuviera en cada botón, habría que volver a engancharlo en cada redibujado. Con la delegación, el listener vive en el <ul>, que nunca se destruye, así que funciona sin importar cuántas tarjetas haya.
+
+## 📊 Función contarPorHashtag
+
+js
+function contarPorHashtag(plantillas) {
+  const conteo = {};
+  plantillas.forEach(function (plantilla) {
+    const elHashtag = plantilla.hashtag;
+    if (conteo[elHashtag]) {
+      conteo[elHashtag] = conteo[elHashtag] + 1;
+    } else {
+      conteo[elHashtag] = 1;
+    }
+  });
+  return conteo;
+}
+
+
+Es una función pura: recibe el arreglo de plantillas y devuelve un objeto nuevo con el conteo, sin modificar nada externo (no toca state ni el DOM). Se usa en el panel de estadísticas (renderStats()) para mostrar el total de plantillas, cuántas hay por cada hashtag, y (Logro 2) cuál es el hashtag más usado. Como renderStats() se llama dentro de render(), las estadísticas se recalculan solas cada vez que se agrega, edita o elimina una plantilla.
+
+## 🌟 Logros implementados
+
+*Laboratorio 13*
+- ✅ *Logro 1*: cada tarjeta muestra la cantidad de caracteres del mensaje (plantilla.mensaje.length).
+- ✅ *Logro 2*: si el mensaje es muy largo, la tarjeta lo muestra recortado con .slice(0, 60) + "…"; el mensaje completo (sin recortar) sigue usándose en el generador.
+- ✅ *Logro 3*: el generador soporta dos variables, {nombre} y {producto}, encadenando dos llamadas a .replaceAll().
+
+*Laboratorio 14*
+- ✅ *Logro 1*: botón "Cancelar" que aparece solo en modo edición; limpia el formulario y pone state.editandoId = null.
+- ✅ *Logro 2*: el panel de estadísticas muestra el hashtag con más plantillas, calculado a partir de contarPorHashtag().
+- ✅ *Logro 3*: antes de eliminar una plantilla, se muestra un confirm() pidiendo confirmación.
+
+## 📁 Estructura del proyecto
 
 
 whatsapp-templates/

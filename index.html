@@ -19,10 +19,14 @@
         <input id="titulo"  type="text" placeholder="Título"  class="p-2 border border-slate-300 rounded">
         <input id="hashtag" type="text" placeholder="hashtag" class="p-2 border border-slate-300 rounded">
         <textarea id="mensaje" rows="3" placeholder="Mensaje (usa {nombre} y {producto})" class="p-2 border border-slate-300 rounded"></textarea>
-        <button class="bg-emerald-600 text-white py-2 rounded">Agregar plantilla</button>
+        <div class="grid grid-cols-2 gap-2">
+          <button id="btn-guardar" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded transition">Agregar plantilla</button>
+          <!-- Logro 1 (C14): Cancelar edición -->
+          <button id="btn-cancelar" type="button" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded transition">Cancelar</button>
+        </div>
       </form>
 
-      <!-- HU4: Generador de mensaje -->
+      <!-- Generador de mensaje (C13 HU4) -->
       <section id="generador" class="bg-white p-4 rounded-xl shadow grid gap-3">
         <h2 class="font-bold text-slate-800">✨ Usar plantilla</h2>
 
@@ -36,7 +40,6 @@
           <input id="valorNombre" type="text" placeholder="ej. Ana" class="p-2 border border-slate-300 rounded text-slate-800">
         </label>
 
-        <!-- Logro 3: variable extra {producto} -->
         <label class="grid gap-1 text-xs text-slate-500">
           Producto (opcional)
           <input id="valorProducto" type="text" placeholder="ej. Zapatillas" class="p-2 border border-slate-300 rounded text-slate-800">
@@ -44,7 +47,6 @@
 
         <button id="btn-generar" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded transition">Generar</button>
 
-        <!-- Resultado: el mensaje final y el botón copiar -->
         <div class="bg-slate-50 border border-slate-200 rounded p-3 grid gap-2">
           <p id="mensaje-final" class="text-sm text-slate-700 whitespace-pre-wrap min-h-[1.5rem]"></p>
           <button id="btn-copiar" class="justify-self-end text-xs text-emerald-700 hover:text-emerald-800">📋 Copiar</button>
@@ -53,8 +55,18 @@
 
     </div>
 
-    <!-- Columna derecha: grid de tarjetas (el JS las pinta; empieza vacío) -->
-    <ul id="listaPlantillas" class="grid gap-3 sm:grid-cols-2 content-start"></ul>
+    <!-- Columna derecha: buscador + estadísticas + tarjetas, todo dentro de UN contenedor -->
+    <div class="grid gap-4 content-start">
+
+      <!-- HU4 (C14): buscador por hashtag -->
+      <input id="buscador" type="text" placeholder="Filtra por hashtag…"
+             class="w-full p-2 border border-slate-300 rounded-lg">
+
+      <!-- HU3 (C14): panel de estadísticas -->
+      <aside id="panel-stats" class="bg-slate-100 rounded-lg p-3"></aside>
+
+      <ul id="listaPlantillas" class="grid gap-3 sm:grid-cols-2"></ul>
+    </div>
 
   </div>
 
