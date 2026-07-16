@@ -1,17 +1,16 @@
 // ==========================================================
-// Estado central — la única fuente de verdad de la app
+// App.js — ahora solo importa y arranca la app
 // ==========================================================
-const state = {
-  plantillas: [],
-  editandoId: null,   // null = modo "crear" | id = modo "editar"
-  filtro: ""          // texto del buscador (HU4)
-};
+import { state } from "./state.js";
+import { cargar, registrarVisita, CLAVE_FILTRO } from "./storage.js";
+import { render } from "./ui.js";
 
-function agregarPlantilla(titulo, mensaje, hashtag) {
-  const nueva = new Template(titulo, mensaje, hashtag);
-  state.plantillas.push(nueva);
-}
+// Recupera el estado guardado antes del primer render
+state.plantillas = cargar();
+state.filtro = localStorage.getItem(CLAVE_FILTRO) ?? "";
+document.getElementById("buscador").value = state.filtro;
 
+<<<<<<< HEAD
 // ==========================================================
 // Eliminar — sin mutar, filtramos el array
 // ==========================================================
@@ -253,4 +252,14 @@ document.getElementById("btn-copiar").addEventListener("click", function () {
 });
 
 // Primer render al cargar la página
+=======
+// Contador de visitas
+const visitas = registrarVisita();
+console.log(`Visita número ${visitas}`);
+
+// Export bonito en consola
+console.log(JSON.stringify(state.plantillas, null, 2));
+
+// Primer render, ya con los datos cargados
+>>>>>>> lab16-cierre
 render();

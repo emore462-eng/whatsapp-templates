@@ -3,74 +3,279 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plantillas WhatsApp</title>
+  <title>Mis Plantillas</title>
+  <link rel="icon" href="whatsapp-logo.ico">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fbf3f6;
+      --surface: #ffffff;
+      --surface-soft: #fcebf1;
+      --rose-200: #f7d4e1;
+      --rose-300: #f0b6cb;
+      --rose-400: #e38aa9;
+      --rose-600: #c85c82;
+      --lavender: #e9e0f5;
+      --lavender-deep: #cdb8e8;
+      --ink: #4a3540;
+      --ink-soft: #93798a;
+      --border: #f0dde6;
+    }
+
+    * { font-family: 'Manrope', sans-serif; }
+    h1, h2, .fuente-titulo { font-family: 'Fraunces', serif; letter-spacing: 0.01em; }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      position: relative;
+      color: var(--ink);
+    }
+
+    /* Un único acento difuminado — restraint, no saturar de decoración */
+    .halo {
+      position: fixed;
+      top: -12%;
+      right: -8%;
+      width: 46vw;
+      height: 46vw;
+      max-width: 640px;
+      max-height: 640px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--rose-200) 0%, transparent 70%);
+      filter: blur(60px);
+      opacity: 0.6;
+      z-index: 0;
+      pointer-events: none;
+    }
+    .halo-2 {
+      position: fixed;
+      bottom: -14%;
+      left: -10%;
+      width: 38vw;
+      height: 38vw;
+      max-width: 520px;
+      max-height: 520px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--lavender) 0%, transparent 70%);
+      filter: blur(60px);
+      opacity: 0.45;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Divisor "cosido" — la firma visual de la página, evoca una notita de tela */
+    .divisor-costura {
+      width: 180px;
+      height: 10px;
+      margin: 0.5rem auto 2rem;
+      background-image: radial-gradient(circle, var(--rose-400) 1.4px, transparent 1.6px);
+      background-size: 10px 10px;
+      background-repeat: repeat-x;
+      background-position: center;
+      opacity: 0.75;
+    }
+
+    /* Paneles: tarjetas suaves de papel */
+    .panel-tarjeta {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: 0 6px 24px rgba(200, 92, 130, 0.08);
+      border-radius: 1.25rem;
+    }
+
+    .input-suave {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      color: var(--ink);
+    }
+    .input-suave::placeholder { color: var(--ink-soft); }
+    .input-suave:focus {
+      outline: none;
+      border-color: var(--rose-400);
+      box-shadow: 0 0 0 3px rgba(227, 138, 169, 0.18);
+      background: var(--surface);
+    }
+
+    .btn-rosa {
+      background: linear-gradient(135deg, var(--rose-300), var(--rose-400));
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(227, 138, 169, 0.35);
+      transition: filter 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    }
+    .btn-rosa:hover {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(227, 138, 169, 0.45);
+    }
+
+    .btn-fantasma {
+      background: var(--surface-soft);
+      color: var(--ink-soft);
+      border: 1px solid var(--border);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .btn-fantasma:hover {
+      background: var(--rose-200);
+      color: var(--rose-600);
+    }
+
+    /* Tarjetas de plantillas — "notitas" con washi tape en la esquina */
+    .tarjeta-plantilla {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1rem;
+      transition: border-color 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+    }
+    .tarjeta-plantilla::before {
+      content: "";
+      position: absolute;
+      top: -8px;
+      left: 18px;
+      width: 44px;
+      height: 16px;
+      background: var(--rose-300);
+      opacity: 0.75;
+      transform: rotate(-3deg);
+      border-radius: 2px;
+    }
+    .tarjeta-plantilla:nth-child(3n+2)::before { background: var(--lavender-deep); transform: rotate(2deg); }
+    .tarjeta-plantilla:nth-child(3n)::before { background: var(--rose-400); transform: rotate(-1.5deg); left: 24px; }
+    .tarjeta-plantilla:hover {
+      border-color: var(--rose-300);
+      box-shadow: 0 10px 26px rgba(200, 92, 130, 0.14);
+      transform: translateY(-2px);
+    }
+
+    .chip-hashtag {
+      background: var(--surface-soft);
+      color: var(--rose-600);
+      border: 1px solid var(--rose-200);
+      font-weight: 600;
+    }
+
+    .btn-editar, .btn-eliminar {
+      background: var(--surface-soft);
+      color: var(--ink-soft);
+      border: 1px solid var(--border);
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+    .btn-editar:hover { background: var(--rose-200); color: var(--rose-600); }
+    .btn-eliminar:hover { background: #f9d9d9; color: #b5495f; }
+
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--rose-300); border-radius: 10px; }
+  </style>
 </head>
-<body class="bg-slate-100 min-h-screen p-6">
-  <h1 class="text-3xl font-bold text-center text-slate-800 mb-6">Mis Plantillas</h1>
+<body class="min-h-screen p-6">
+
+  <div class="halo"></div>
+  <div class="halo-2"></div>
+
+  <h1 class="fuente-titulo text-4xl md:text-5xl font-semibold text-center mb-1 relative z-10" style="color: var(--rose-600);">
+    Mis Plantillas
+  </h1>
+  
+  <div class="divisor-costura relative z-10"></div>
 
   <!-- Dos columnas: formulario a la izquierda, tarjetas a la derecha -->
-  <div class="max-w-5xl mx-auto grid gap-6 md:grid-cols-[320px_1fr]">
+  <div class="max-w-5xl mx-auto grid gap-6 md:grid-cols-[320px_1fr] relative z-10">
 
     <!-- Columna izquierda: acciones (formulario + generador) -->
     <div class="grid gap-6 self-start">
 
-      <form id="form-plantilla" class="bg-white p-4 rounded-xl shadow grid gap-2">
-        <input id="titulo"  type="text" placeholder="Título"  class="p-2 border border-slate-300 rounded">
-        <input id="hashtag" type="text" placeholder="hashtag" class="p-2 border border-slate-300 rounded">
-        <textarea id="mensaje" rows="3" placeholder="Mensaje (usa {nombre} y {producto})" class="p-2 border border-slate-300 rounded"></textarea>
+      <form id="form-plantilla" class="panel-tarjeta p-4 grid gap-2">
+        <h2 class="fuente-titulo font-semibold text-lg mb-1" style="color: var(--rose-600);">Nueva plantilla</h2>
+        <input id="titulo" type="text" placeholder="Título"
+               class="input-suave p-2 rounded-lg">
+        <input id="hashtag" type="text" placeholder="hashtag"
+               class="input-suave p-2 rounded-lg">
+        <textarea id="mensaje" rows="3" placeholder="Mensaje (usa {nombre} y {producto})"
+                  class="input-suave p-2 rounded-lg"></textarea>
         <div class="grid grid-cols-2 gap-2">
-          <button id="btn-guardar" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded transition">Agregar plantilla</button>
-          <!-- Logro 1 (C14): Cancelar edición -->
-          <button id="btn-cancelar" type="button" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded transition">Cancelar</button>
+          <button id="btn-guardar" type="submit" class="btn-rosa py-2 rounded-lg">Agregar plantilla</button>
+          <button id="btn-cancelar" type="button" class="hidden btn-fantasma py-2 rounded-lg">
+            Cancelar
+          </button>
         </div>
       </form>
 
-      <!-- Generador de mensaje (C13 HU4) -->
-      <section id="generador" class="bg-white p-4 rounded-xl shadow grid gap-3">
-        <h2 class="font-bold text-slate-800">✨ Usar plantilla</h2>
+      <!-- Generador de mensaje -->
+      <section id="generador" class="panel-tarjeta p-4 grid gap-3">
+        <h2 class="fuente-titulo font-semibold text-lg" style="color: var(--rose-600);">Usar plantilla</h2>
 
-        <label class="grid gap-1 text-xs text-slate-500">
+        <label class="grid gap-1 text-xs" style="color: var(--ink-soft);">
           Plantilla
-          <select id="selector" class="p-2 border border-slate-300 rounded text-slate-800"></select>
+          <select id="selector" class="input-suave p-2 rounded-lg"></select>
         </label>
 
-        <label class="grid gap-1 text-xs text-slate-500">
+        <label class="grid gap-1 text-xs" style="color: var(--ink-soft);">
           Nombre real
-          <input id="valorNombre" type="text" placeholder="ej. Ana" class="p-2 border border-slate-300 rounded text-slate-800">
+          <input id="valorNombre" type="text" placeholder="ej. Ana" class="input-suave p-2 rounded-lg">
         </label>
 
-        <label class="grid gap-1 text-xs text-slate-500">
+        <label class="grid gap-1 text-xs" style="color: var(--ink-soft);">
           Producto (opcional)
-          <input id="valorProducto" type="text" placeholder="ej. Zapatillas" class="p-2 border border-slate-300 rounded text-slate-800">
+          <input id="valorProducto" type="text" placeholder="ej. Zapatillas" class="input-suave p-2 rounded-lg">
         </label>
 
-        <button id="btn-generar" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 rounded transition">Generar</button>
+        <button id="btn-generar" class="btn-rosa font-medium py-2 rounded-lg">Generar</button>
 
-        <div class="bg-slate-50 border border-slate-200 rounded p-3 grid gap-2">
-          <p id="mensaje-final" class="text-sm text-slate-700 whitespace-pre-wrap min-h-[1.5rem]"></p>
-          <button id="btn-copiar" class="justify-self-end text-xs text-emerald-700 hover:text-emerald-800">📋 Copiar</button>
+        <div class="rounded-lg p-3 grid gap-2" style="background: var(--surface-soft); border: 1px solid var(--border);">
+          <p id="mensaje-final" class="text-sm whitespace-pre-wrap min-h-[1.5rem]" style="color: var(--ink);"></p>
+          <button id="btn-copiar" class="justify-self-end text-xs font-semibold" style="color: var(--rose-600);">📋 Copiar</button>
         </div>
       </section>
 
     </div>
 
-    <!-- Columna derecha: buscador + estadísticas + tarjetas, todo dentro de UN contenedor -->
+    <!-- Columna derecha: buscador + orden + estadísticas + tarjetas -->
     <div class="grid gap-4 content-start">
 
-      <!-- HU4 (C14): buscador por hashtag -->
-      <input id="buscador" type="text" placeholder="Filtra por hashtag…"
-             class="w-full p-2 border border-slate-300 rounded-lg">
+      <div class="relative">
+        <input id="buscador" type="text" placeholder="Filtra por hashtag…"
+               class="input-suave w-full p-2 pr-9 rounded-lg">
+        <button id="btn-limpiar-filtro" type="button" title="Limpiar filtro"
+                class="absolute right-2 top-1/2 -translate-y-1/2 text-sm transition" style="color: var(--ink-soft);">✕</button>
+      </div>
 
-      <!-- HU3 (C14): panel de estadísticas -->
-      <aside id="panel-stats" class="bg-slate-100 rounded-lg p-3"></aside>
+      <select id="orden" class="input-suave w-full p-2 rounded-lg">
+        <option value="recientes">Más recientes</option>
+        <option value="antiguas">Más antiguas</option>
+        <option value="alfabetico">Alfabético (A-Z)</option>
+      </select>
 
-      <ul id="listaPlantillas" class="grid gap-3 sm:grid-cols-2"></ul>
+      <aside id="panel-stats" class="panel-tarjeta p-3"></aside>
+
+      <ul id="listaPlantillas" class="grid gap-4 sm:grid-cols-2"></ul>
+
+      <div class="flex items-center justify-between border-t pt-3" style="border-color: var(--border);">
+        <p id="estado" class="text-xs px-2.5 py-1 rounded-full" style="background: var(--surface-soft); color: var(--rose-600);">Listo</p>
+        <button id="btn-vaciar"
+                class="text-xs px-3 py-1.5 rounded-lg border transition" style="border-color: #f0c9c9; color: #b5495f;">
+          Vaciar todo
+        </button>
+      </div>
     </div>
 
   </div>
 
-  <script src="js/models/Template.js"></script>
-  <script src="js/app.js"></script>
+  <!-- Modal de confirmación -->
+  <div id="modal" class="hidden fixed inset-0 z-50 bg-black/30 flex items-center justify-center p-4">
+    <div class="panel-tarjeta p-6 max-w-sm w-full text-center" style="border-color: var(--rose-300);">
+      <p id="modal-texto" class="mb-5 text-sm" style="color: var(--ink);">¿Seguro?</p>
+      <div class="flex gap-2 justify-center">
+        <button id="modal-cancelar" class="btn-fantasma px-4 py-2 rounded-lg">Cancelar</button>
+        <button id="modal-confirmar" class="px-4 py-2 rounded-lg text-white font-semibold" style="background: #d9647f;">Eliminar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
