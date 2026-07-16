@@ -13,7 +13,7 @@ function agregarPlantilla(titulo, mensaje, hashtag) {
 }
 
 // ==========================================================
-// HU1 (C14): Eliminar — sin mutar, filtramos el array
+// Eliminar — sin mutar, filtramos el array
 // ==========================================================
 function eliminarPlantilla(id) {
   state.plantillas = state.plantillas.filter(plantilla => plantilla.id !== id);
@@ -21,7 +21,7 @@ function eliminarPlantilla(id) {
 }
 
 // ==========================================================
-// HU2 (C14): Editar — carga los datos en el formulario
+// Editar — carga los datos en el formulario
 // ==========================================================
 function cargarEnFormulario(id) {
   const plantilla = state.plantillas.find(plantilla => plantilla.id === id);
@@ -36,7 +36,7 @@ function cargarEnFormulario(id) {
   btnCancelar.classList.remove("hidden"); // Logro 1: aparece el botón cancelar
 }
 
-// Logro 1 (C14): cancelar edición — limpia el formulario y vuelve a modo "crear"
+// Cancelar edición — limpia el formulario y vuelve a modo "crear"
 function cancelarEdicion() {
   state.editandoId = null;
   form.reset();
@@ -45,7 +45,7 @@ function cancelarEdicion() {
 }
 
 // ==========================================================
-// Limpieza y normalización de texto (C13 HU3)
+// Limpieza y normalización de texto 
 // ==========================================================
 function normalizarHashtag(texto) {
   const limpio = texto.trim().toLowerCase();
@@ -58,7 +58,7 @@ function recortarTexto(texto, limite = 60) {
 }
 
 // ==========================================================
-// HU3 (C14): Datos derivados — función pura
+// Datos derivados — función pura
 // ==========================================================
 function contarPorHashtag(plantillas) {
   const conteo = {};
@@ -200,7 +200,7 @@ form.addEventListener("submit", function (evento) {
 btnCancelar.addEventListener("click", cancelarEdicion);
 
 // ==========================================================
-// HU1 + HU2 (C14): delegación de eventos — UN listener para todos los botones
+// Delegación de eventos — UN listener para todos los botones
 // ==========================================================
 lista.addEventListener("click", function (evento) {
   const id = evento.target.dataset.id;
@@ -218,7 +218,7 @@ lista.addEventListener("click", function (evento) {
 });
 
 // ==========================================================
-// HU4 (C14): buscador — filtra al instante mientras se escribe
+// Buscador — filtra al instante mientras se escribe
 // ==========================================================
 document.getElementById("buscador").addEventListener("input", function (evento) {
   state.filtro = evento.target.value;
@@ -226,7 +226,7 @@ document.getElementById("buscador").addEventListener("input", function (evento) 
 });
 
 // ==========================================================
-// Generador de mensaje final (C13 HU4 + Logro 3)
+// Generador de mensaje final 
 // ==========================================================
 function generarMensajeFinal(plantilla, valorNombre, valorProducto) {
   return plantilla.mensaje
